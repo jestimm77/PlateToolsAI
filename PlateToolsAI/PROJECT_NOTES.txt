@@ -1,0 +1,173 @@
+﻿
+LAST CHECKPOINT
+--------------------------------------------------
+Date:
+08/27/2026
+
+Status:
+Phase 1 Foundation Complete
+
+Working Features:
+
+✅ AIEmployeeController
+
+✅ Cutlist Models
+
+✅ Reader Framework
+
+✅ Job Loading
+
+✅ Lots Loading
+
+✅ Sequences Loading
+
+✅ Successful Build
+
+✅ Successful Run
+
+Current Focus:
+
+Recreate original SF Programming Plate Tools UI.
+
+Do NOT add new AI features until the UI
+closely resembles the original Plate Tools layout.
+
+Next Task:
+
+Add Available Parts section.
+
+Target Layout:
+
+Toolbar
+
+Job
+Group
+
+Available Lots
+
+Available Sequences
+
+Available Parts
+
+AI Employee integrated into cloned UI.
+
+==================================================
+
+PlateToolsAI Project Notes
+
+Vision
+--------------------------------------------------
+
+Clone SF Programming Plate Tools and add:
+
+1. AI Employee
+2. Cutlist Reader
+3. Dual Mode
+
+...
+
+Vision
+--------------------------------------------------
+Clone SF Programming Plate Tools and add:
+
+1. AI Employee
+2. Cutlist Reader
+3. Dual Mode
+
+Manual Mode:
+User selects and processes jobs.
+
+AI Employee Mode:
+AI selects and processes jobs.
+
+--------------------------------------------------
+
+Current Status
+--------------------------------------------------
+
+Completed
+
+✅ PlateToolsAI WinForms project created
+
+✅ Models
+    - CutlistPart
+    - CutlistJob
+
+✅ Readers
+    - ICutlistReader
+    - PdfCutlistReader
+
+✅ AI Employee
+    - AIEmployeeController
+
+✅ Process Job workflow
+
+✅ Job Number loading
+
+✅ Lots loading
+
+✅ Sequences loading
+
+✅ Successful build and run
+
+--------------------------------------------------
+
+Current Direction
+--------------------------------------------------
+
+Rebuild UI to match original
+SF Programming Plate Tools layout.
+
+Goal:
+
+Job
+Group
+
+Available Lots
+
+Available Sequences
+
+Available Parts Grid
+
+Tool Bar
+
+Then connect AI Employee
+to the cloned UI.
+
+--------------------------------------------------
+
+Future Features
+--------------------------------------------------
+
+Phase 2
+- Real PDF Cutlist Reader
+
+Phase 3
+- Parts Grid Population
+
+Phase 4
+- Machine Assignment Engine
+
+Phase 5
+- Dual Mode
+    Manual
+    AI Employee
+
+Phase 6
+- DSTV Workflow
+
+Phase 7
+- Production Outputs
+
+--------------------------------------------------
+
+Notes
+
+Original goal:
+
+Clone Plate Tools and add AI Employee.
+
+Do NOT create a generic application.
+
+The UI should closely resemble
+the original Plate Tools workflow.
