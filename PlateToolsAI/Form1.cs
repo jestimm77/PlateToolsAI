@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -17,6 +18,21 @@ namespace PlateToolsAI
 {
     public partial class Form1 : Form
     {
+        private static readonly string[] MachineOptions =
+        {
+            string.Empty,
+            "Shear",
+            "FPB",
+            "2500A",
+            "2500B",
+            "Burn Table",
+            "ESAB-1",
+            "ESAB-2",
+            "ESAB-3",
+            "T-Order",
+            "Stock"
+        };
+
         private CutlistJob _currentJob;
 
         public Form1()
@@ -28,6 +44,7 @@ namespace PlateToolsAI
         {
             // Initialize DataGridView columns
             InitializeDataGridView();
+            UpdateAIEmployeeState();
         }
 
         private void InitializeDataGridView()
@@ -39,7 +56,16 @@ namespace PlateToolsAI
             dgvParts.Columns.Add("Thickness", "Thickness");
             dgvParts.Columns.Add("Sequence", "Sequence");
             dgvParts.Columns.Add("Lot", "Lot");
-            dgvParts.Columns.Add("Machine", "Machine");
+
+            var machineColumn = new DataGridViewComboBoxColumn
+            {
+                Name = "Machine",
+                HeaderText = "Machine",
+                DataSource = MachineOptions.ToList(),
+                DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton
+            };
+
+            dgvParts.Columns.Add(machineColumn);
 
             // Set column widths
             dgvParts.Columns["PieceMark"].Width = 100;
@@ -49,21 +75,50 @@ namespace PlateToolsAI
             dgvParts.Columns["Sequence"].Width = 80;
             dgvParts.Columns["Lot"].Width = 60;
             dgvParts.Columns["Machine"].Width = 100;
+
+            dgvParts.ReadOnly = false;
+
+            foreach (DataGridViewColumn column in dgvParts.Columns)
+            {
+                column.ReadOnly = column.Name != "Machine";
+            }
+
+            dgvParts.CurrentCellDirtyStateChanged += dgvParts_CurrentCellDirtyStateChanged;
+            dgvParts.CellValueChanged += dgvParts_CellValueChanged;
+            dgvParts.DataError += dgvParts_DataError;
         }
 
         private void btnProcessJob_Click(object sender, EventArgs e)
         {
+            using var dialog = new OpenFileDialog
+            {
+                Title = "Select Cut List PDF",
+                Filter = "PDF Files (*.pdf)|*.pdf",
+                CheckFileExists = true,
+                Multiselect = false
+            };
+
+            if (dialog.ShowDialog(this) != DialogResult.OK)
+            {
+                return;
+            }
+
             var reader = new PdfCutlistReader();
 
             var employee =
                 new AIEmployeeController(reader);
 
             _currentJob =
-                employee.ProcessJob("34778.pdf");
+                employee.ProcessJob(dialog.FileName);
+
+            if (chkAIEmployee.Checked)
+            {
+                ApplyMachineAssignments();
+            }
 
             // Update Job Info
             lblJobNumberValue.Text = _currentJob.JobNumber;
-            lblGroupValue.Text = "1"; // For now, default group
+            lblGroupValue.Text = "(none)";
 
             // Populate Lots
             lstLots.Items.Clear();
@@ -79,8 +134,21 @@ namespace PlateToolsAI
                 lstSequences.Items.Add($"Sequence {sequence}");
             }
 
+            lblMachineAssignmentStatus.Text = $"{_currentJob.MachineAssignments.Count} assignments loaded";
+
             // Populate Parts Grid (show all parts initially)
             RefreshPartsGrid(_currentJob.Parts);
+
+            if (_currentJob.MachineAssignments.Count == 0)
+            {
+                MessageBox.Show(
+                    this,
+                    $"No Piece Mark to Machine assignments were found in {Path.GetFileName(dialog.FileName)}.",
+                    "No Assignments Found",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
+            }
         }
 
         private void RefreshPartsGrid(List<CutlistPart> parts)
@@ -89,15 +157,17 @@ namespace PlateToolsAI
 
             foreach (var part in parts)
             {
-                dgvParts.Rows.Add(
+                var rowIndex = dgvParts.Rows.Add(
                     part.PieceMark,
-                    part.Quantity,
+                    part.Quantity > 0 ? (object)part.Quantity : string.Empty,
                     part.Material,
                     part.Thickness,
                     part.Sequence,
                     part.Lot,
                     part.Machine
                 );
+
+                dgvParts.Rows[rowIndex].Tag = part;
             }
         }
 
@@ -135,6 +205,85 @@ namespace PlateToolsAI
             RefreshPartsGrid(filteredParts);
         }
 
+        private void chkAIEmployee_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateAIEmployeeState();
+
+            if (_currentJob == null)
+            {
+                return;
+            }
+
+            if (chkAIEmployee.Checked)
+            {
+                ApplyMachineAssignments();
+            }
+
+            RefreshPartsGrid(_currentJob.Parts);
+        }
+
+        private void UpdateAIEmployeeState()
+        {
+            chkAIEmployee.Text = chkAIEmployee.Checked
+                ? "AI Employee ON"
+                : "AI Employee OFF";
+
+            lblMachineAssignmentStatus.Text = chkAIEmployee.Checked
+                ? "AI auto-select enabled"
+                : "Manual machine selection enabled";
+
+            if (dgvParts.Columns.Contains("Machine"))
+            {
+                dgvParts.Columns["Machine"].ReadOnly = chkAIEmployee.Checked;
+            }
+        }
+
+        private void ApplyMachineAssignments()
+        {
+            if (_currentJob == null)
+            {
+                return;
+            }
+
+            foreach (var part in _currentJob.Parts)
+            {
+                if (_currentJob.MachineAssignments.TryGetValue(part.PieceMark, out var machine))
+                {
+                    part.Machine = machine;
+                }
+                else
+                {
+                    part.Machine = string.Empty;
+                }
+            }
+        }
+
+        private void dgvParts_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        {
+            if (dgvParts.IsCurrentCellDirty)
+            {
+                dgvParts.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
+        }
+
+        private void dgvParts_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (chkAIEmployee.Checked || e.RowIndex < 0 || dgvParts.Columns[e.ColumnIndex].Name != "Machine")
+            {
+                return;
+            }
+
+            if (dgvParts.Rows[e.RowIndex].Tag is CutlistPart part)
+            {
+                part.Machine = Convert.ToString(dgvParts.Rows[e.RowIndex].Cells["Machine"].Value) ?? string.Empty;
+            }
+        }
+
+        private void dgvParts_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+            e.ThrowException = false;
+        }
+
         private void btnClearAll_Click(object sender, EventArgs e)
         {
             lstLots.Items.Clear();
@@ -142,6 +291,9 @@ namespace PlateToolsAI
             dgvParts.Rows.Clear();
             lblJobNumberValue.Text = "(none)";
             lblGroupValue.Text = "(none)";
+            lblMachineAssignmentStatus.Text = chkAIEmployee.Checked
+                ? "AI auto-select enabled"
+                : "Manual machine selection enabled";
             _currentJob = null;
         }
     }
