@@ -134,7 +134,7 @@ namespace PlateToolsAI
                 lstSequences.Items.Add($"Sequence {sequence}");
             }
 
-            lblMachineAssignmentStatus.Text = $"{_currentJob.MachineAssignments.Count} assignments loaded";
+            UpdateMachineAssignmentStatus();
 
             // Populate Parts Grid (show all parts initially)
             RefreshPartsGrid(_currentJob.Parts);
@@ -228,14 +228,23 @@ namespace PlateToolsAI
                 ? "AI Employee ON"
                 : "AI Employee OFF";
 
-            lblMachineAssignmentStatus.Text = chkAIEmployee.Checked
-                ? "AI auto-select enabled"
-                : "Manual machine selection enabled";
-
             if (dgvParts.Columns.Contains("Machine"))
             {
                 dgvParts.Columns["Machine"].ReadOnly = chkAIEmployee.Checked;
             }
+
+            UpdateMachineAssignmentStatus();
+        }
+
+        private void UpdateMachineAssignmentStatus()
+        {
+            var modeText = chkAIEmployee.Checked
+                ? "AI auto-select enabled"
+                : "Manual machine selection enabled";
+
+            lblMachineAssignmentStatus.Text = _currentJob == null
+                ? modeText
+                : $"{_currentJob.MachineAssignments.Count} assignments loaded | {modeText}";
         }
 
         private void ApplyMachineAssignments()
@@ -250,10 +259,6 @@ namespace PlateToolsAI
                 if (_currentJob.MachineAssignments.TryGetValue(part.PieceMark, out var machine))
                 {
                     part.Machine = machine;
-                }
-                else
-                {
-                    part.Machine = string.Empty;
                 }
             }
         }
@@ -291,10 +296,8 @@ namespace PlateToolsAI
             dgvParts.Rows.Clear();
             lblJobNumberValue.Text = "(none)";
             lblGroupValue.Text = "(none)";
-            lblMachineAssignmentStatus.Text = chkAIEmployee.Checked
-                ? "AI auto-select enabled"
-                : "Manual machine selection enabled";
             _currentJob = null;
+            UpdateMachineAssignmentStatus();
         }
     }
 }
