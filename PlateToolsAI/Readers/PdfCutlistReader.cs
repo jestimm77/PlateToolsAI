@@ -33,6 +33,9 @@ namespace PlateToolsAI.Readers
 
         public CutlistJob Read(string filePath)
         {
+            const string defaultLot = "1";
+            const string defaultSequence = "1";
+
             if (string.IsNullOrWhiteSpace(filePath))
             {
                 throw new ArgumentException("A cut list PDF path is required.", nameof(filePath));
@@ -48,6 +51,9 @@ namespace PlateToolsAI.Readers
                 JobNumber = Path.GetFileNameWithoutExtension(filePath)
             };
 
+            job.Lots.Add(defaultLot);
+            job.Sequences.Add(defaultSequence);
+
             var textLines = ExtractTextLines(filePath);
 
             foreach (var assignment in ExtractAssignments(textLines))
@@ -59,7 +65,9 @@ namespace PlateToolsAI.Readers
             {
                 job.Parts.Add(new CutlistPart
                 {
-                    PieceMark = pieceMark
+                    PieceMark = pieceMark,
+                    Lot = defaultLot,
+                    Sequence = defaultSequence
                 });
             }
 

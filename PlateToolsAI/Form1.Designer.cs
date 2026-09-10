@@ -124,6 +124,8 @@ namespace PlateToolsAI
             this.lblMachineAssignmentStatus.Text = "AI auto-select enabled";
             
             // chkAIEmployee
+            this.chkAIEmployee.AccessibleDescription = "Turns automatic machine selection from the cut list on or off.";
+            this.chkAIEmployee.AccessibleName = "AI Employee machine auto-selection";
             this.chkAIEmployee.Appearance = System.Windows.Forms.Appearance.Button;
             this.chkAIEmployee.AutoSize = true;
             this.chkAIEmployee.Checked = true;
