@@ -134,7 +134,14 @@ namespace PlateToolsAI
                 lstSequences.Items.Add($"Sequence {sequence}");
             }
 
-            UpdateMachineAssignmentStatus();
+            if (_currentJob.MachineAssignments.Count == 0 && chkAIEmployee.Checked)
+            {
+                chkAIEmployee.Checked = false;
+            }
+            else
+            {
+                UpdateMachineAssignmentStatus();
+            }
 
             // Populate Parts Grid (show all parts initially)
             RefreshPartsGrid(_currentJob.Parts);
