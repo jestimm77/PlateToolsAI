@@ -34,12 +34,15 @@ namespace PlateToolsAI
             this.btnRefresh = new System.Windows.Forms.ToolStripButton();
             this.btnClearAll = new System.Windows.Forms.ToolStripButton();
             this.pnlJobInfo = new System.Windows.Forms.Panel();
+            this.lblMachineAssignmentStatus = new System.Windows.Forms.Label();
+            this.chkAIEmployee = new System.Windows.Forms.CheckBox();
             this.lblJobNumberValue = new System.Windows.Forms.Label();
             this.lblJobNumberLabel = new System.Windows.Forms.Label();
             this.lblGroupValue = new System.Windows.Forms.Label();
             this.lblGroupLabel = new System.Windows.Forms.Label();
             this.pnlContent = new System.Windows.Forms.Panel();
             this.pnlParts = new System.Windows.Forms.Panel();
+            this.txtTotalsSummary = new System.Windows.Forms.TextBox();
             this.dgvParts = new System.Windows.Forms.DataGridView();
             this.lblAvailableParts = new System.Windows.Forms.Label();
             this.pnlSequences = new System.Windows.Forms.Panel();
@@ -88,6 +91,7 @@ namespace PlateToolsAI
             this.btnRefresh.Name = "btnRefresh";
             this.btnRefresh.Size = new System.Drawing.Size(50, 24);
             this.btnRefresh.Text = "Refresh";
+            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
             
             // btnClearAll
             this.btnClearAll.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
@@ -100,6 +104,8 @@ namespace PlateToolsAI
             // pnlJobInfo
             this.pnlJobInfo.BackColor = System.Drawing.SystemColors.Control;
             this.pnlJobInfo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnlJobInfo.Controls.Add(this.lblMachineAssignmentStatus);
+            this.pnlJobInfo.Controls.Add(this.chkAIEmployee);
             this.pnlJobInfo.Controls.Add(this.lblJobNumberValue);
             this.pnlJobInfo.Controls.Add(this.lblJobNumberLabel);
             this.pnlJobInfo.Controls.Add(this.lblGroupValue);
@@ -107,8 +113,31 @@ namespace PlateToolsAI
             this.pnlJobInfo.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlJobInfo.Location = new System.Drawing.Point(0, 27);
             this.pnlJobInfo.Name = "pnlJobInfo";
-            this.pnlJobInfo.Size = new System.Drawing.Size(1200, 60);
+            this.pnlJobInfo.Size = new System.Drawing.Size(1200, 82);
             this.pnlJobInfo.TabIndex = 1;
+            
+            // lblMachineAssignmentStatus
+            this.lblMachineAssignmentStatus.AutoSize = true;
+            this.lblMachineAssignmentStatus.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblMachineAssignmentStatus.Location = new System.Drawing.Point(309, 50);
+            this.lblMachineAssignmentStatus.Name = "lblMachineAssignmentStatus";
+            this.lblMachineAssignmentStatus.Size = new System.Drawing.Size(239, 15);
+            this.lblMachineAssignmentStatus.TabIndex = 5;
+            this.lblMachineAssignmentStatus.Text = "AI suggestions will fill recognized matches.";
+            
+            // chkAIEmployee
+            this.chkAIEmployee.AccessibleDescription = "Turns optional AI machine suggestions on or off while keeping machine selection editable for manual correction.";
+            this.chkAIEmployee.AccessibleName = "Use AI machine suggestions when available";
+            this.chkAIEmployee.AutoSize = true;
+            this.chkAIEmployee.Checked = true;
+            this.chkAIEmployee.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkAIEmployee.Location = new System.Drawing.Point(12, 47);
+            this.chkAIEmployee.Name = "chkAIEmployee";
+            this.chkAIEmployee.Size = new System.Drawing.Size(242, 21);
+            this.chkAIEmployee.TabIndex = 4;
+            this.chkAIEmployee.Text = "Use AI machine suggestions when available";
+            this.chkAIEmployee.UseVisualStyleBackColor = true;
+            this.chkAIEmployee.CheckedChanged += new System.EventHandler(this.chkAIEmployee_CheckedChanged);
             
             // lblJobNumberValue
             this.lblJobNumberValue.AutoSize = true;
@@ -148,10 +177,10 @@ namespace PlateToolsAI
             
             // pnlContent
             this.pnlContent.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlContent.Location = new System.Drawing.Point(0, 87);
+            this.pnlContent.Location = new System.Drawing.Point(0, 109);
             this.pnlContent.Name = "pnlContent";
             this.pnlContent.Padding = new System.Windows.Forms.Padding(5);
-            this.pnlContent.Size = new System.Drawing.Size(1200, 565);
+            this.pnlContent.Size = new System.Drawing.Size(1200, 543);
             this.pnlContent.TabIndex = 2;
             
             // pnlLots
@@ -218,6 +247,7 @@ namespace PlateToolsAI
             
             // pnlParts
             this.pnlParts.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnlParts.Controls.Add(this.txtTotalsSummary);
             this.pnlParts.Controls.Add(this.dgvParts);
             this.pnlParts.Controls.Add(this.lblAvailableParts);
             this.pnlParts.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -237,6 +267,17 @@ namespace PlateToolsAI
             this.lblAvailableParts.Text = "Available Parts";
             this.lblAvailableParts.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             
+            // txtTotalsSummary
+            this.txtTotalsSummary.AccessibleName = "Routing totals summary";
+            this.txtTotalsSummary.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.txtTotalsSummary.Location = new System.Drawing.Point(0, 393);
+            this.txtTotalsSummary.Multiline = true;
+            this.txtTotalsSummary.Name = "txtTotalsSummary";
+            this.txtTotalsSummary.ReadOnly = true;
+            this.txtTotalsSummary.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtTotalsSummary.Size = new System.Drawing.Size(688, 160);
+            this.txtTotalsSummary.TabIndex = 2;
+            
             // dgvParts
             this.dgvParts.AllowUserToAddRows = false;
             this.dgvParts.AllowUserToDeleteRows = false;
@@ -245,10 +286,10 @@ namespace PlateToolsAI
             this.dgvParts.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvParts.Location = new System.Drawing.Point(0, 25);
             this.dgvParts.Name = "dgvParts";
-            this.dgvParts.ReadOnly = true;
+            this.dgvParts.ReadOnly = false;
             this.dgvParts.RowHeadersWidth = 51;
             this.dgvParts.RowTemplate.Height = 25;
-            this.dgvParts.Size = new System.Drawing.Size(688, 528);
+            this.dgvParts.Size = new System.Drawing.Size(688, 368);
             this.dgvParts.TabIndex = 1;
             
             // Form1
@@ -281,6 +322,8 @@ namespace PlateToolsAI
         private System.Windows.Forms.ToolStripButton btnRefresh;
         private System.Windows.Forms.ToolStripButton btnClearAll;
         private System.Windows.Forms.Panel pnlJobInfo;
+        private System.Windows.Forms.Label lblMachineAssignmentStatus;
+        private System.Windows.Forms.CheckBox chkAIEmployee;
         private System.Windows.Forms.Label lblJobNumberValue;
         private System.Windows.Forms.Label lblJobNumberLabel;
         private System.Windows.Forms.Label lblGroupValue;
@@ -293,6 +336,7 @@ namespace PlateToolsAI
         private System.Windows.Forms.ListBox lstSequences;
         private System.Windows.Forms.Label lblAvailableSequences;
         private System.Windows.Forms.Panel pnlParts;
+        private System.Windows.Forms.TextBox txtTotalsSummary;
         private System.Windows.Forms.DataGridView dgvParts;
         private System.Windows.Forms.Label lblAvailableParts;
     }
