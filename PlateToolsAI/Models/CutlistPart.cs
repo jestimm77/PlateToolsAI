@@ -21,5 +21,7 @@
         public string ReviewNote { get; set; } = string.Empty;
 
         public bool HasManualMachineOverride { get; set; }
+
+        public bool MachineAssignedByAI { get; set; }
     }
 }

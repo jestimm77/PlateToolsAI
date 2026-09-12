@@ -205,6 +205,10 @@ namespace PlateToolsAI
             {
                 ApplyMachineAssignments();
             }
+            else
+            {
+                ClearAutoAppliedMachineAssignments();
+            }
 
             RefreshCurrentView();
         }
@@ -248,7 +252,31 @@ namespace PlateToolsAI
                 if (!part.HasManualMachineOverride || string.IsNullOrWhiteSpace(part.Machine))
                 {
                     part.Machine = part.SuggestedMachine;
+                    part.MachineAssignedByAI = true;
                 }
+            }
+        }
+
+        private void ClearAutoAppliedMachineAssignments()
+        {
+            if (_currentJob == null)
+            {
+                return;
+            }
+
+            foreach (var part in _currentJob.Parts)
+            {
+                if (!part.MachineAssignedByAI)
+                {
+                    continue;
+                }
+
+                if (string.Equals(part.Machine, part.SuggestedMachine, StringComparison.OrdinalIgnoreCase))
+                {
+                    part.Machine = string.Empty;
+                }
+
+                part.MachineAssignedByAI = false;
             }
         }
 
@@ -385,10 +413,16 @@ namespace PlateToolsAI
                 return "Manual";
             }
 
-            if (!string.IsNullOrWhiteSpace(part.Machine) &&
+            if (part.MachineAssignedByAI &&
+                !string.IsNullOrWhiteSpace(part.Machine) &&
                 string.Equals(part.Machine, part.SuggestedMachine, StringComparison.OrdinalIgnoreCase))
             {
                 return "AI Match";
+            }
+
+            if (!string.IsNullOrWhiteSpace(part.Machine))
+            {
+                return "Manual";
             }
 
             if (!string.IsNullOrWhiteSpace(part.SuggestedMachine))
@@ -425,6 +459,7 @@ namespace PlateToolsAI
             }
 
             part.Machine = Convert.ToString(dgvParts.Rows[e.RowIndex].Cells["Machine"].Value) ?? string.Empty;
+            part.MachineAssignedByAI = false;
             part.HasManualMachineOverride = string.IsNullOrWhiteSpace(part.SuggestedMachine)
                 ? !string.IsNullOrWhiteSpace(part.Machine)
                 : !string.Equals(part.Machine, part.SuggestedMachine, StringComparison.OrdinalIgnoreCase);

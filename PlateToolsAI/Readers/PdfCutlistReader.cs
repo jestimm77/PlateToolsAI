@@ -380,11 +380,11 @@ namespace PlateToolsAI.Readers
 
         private static IEnumerable<string> FindMachines(string line)
         {
-            var normalized = Regex.Replace((line ?? string.Empty).ToUpperInvariant(), @"[^A-Z0-9]+", " ");
+            var normalized = Regex.Replace((line ?? string.Empty).ToUpperInvariant(), @"[^A-Z0-9]+", " ").Trim();
 
             foreach (var machine in MachineOptions)
             {
-                var pattern = Regex.Replace(machine.ToUpperInvariant(), @"[^A-Z0-9]+", " ");
+                var pattern = Regex.Replace(machine.ToUpperInvariant(), @"[^A-Z0-9]+", " ").Trim();
                 if (Regex.IsMatch(normalized, $@"\b{Regex.Escape(pattern).Replace("\\ ", @"\s+")}\b"))
                 {
                     yield return machine;
