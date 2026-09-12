@@ -15,5 +15,13 @@
         public string Lot { get; set; } = string.Empty;
 
         public string Machine { get; set; } = string.Empty;
+
+        public string SuggestedMachine { get; set; } = string.Empty;
+
+        public string ReviewNote { get; set; } = string.Empty;
+
+        public bool HasManualMachineOverride { get; set; }
+
+        public bool MachineAssignedByAI { get; set; }
     }
 }
