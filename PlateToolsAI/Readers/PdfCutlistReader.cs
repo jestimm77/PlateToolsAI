@@ -149,6 +149,11 @@ namespace PlateToolsAI.Readers
                     .ToList();
             }
 
+            if (!string.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new NotSupportedException("Only PDF, TXT, and CSV cut list files are supported.");
+            }
+
             var textLines = ExtractTextLinesFromPdf(filePath).ToList();
             if (HasEnoughPartCandidates(textLines))
             {
@@ -507,10 +512,11 @@ namespace PlateToolsAI.Readers
             }
 
             var body = normalized.Substring(3).Trim();
+            var upperBody = body.ToUpperInvariant();
             foreach (var pattern in ThicknessPatterns)
             {
                 var search = pattern.ToUpperInvariant();
-                var index = body.ToUpperInvariant().LastIndexOf(search, StringComparison.Ordinal);
+                var index = upperBody.LastIndexOf(search, StringComparison.Ordinal);
                 if (index < 0)
                 {
                     continue;

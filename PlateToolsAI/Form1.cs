@@ -226,6 +226,10 @@ namespace PlateToolsAI
             {
                 ApplyMachineAssignments();
             }
+            else
+            {
+                ClearAutoAppliedMachineAssignments();
+            }
 
             RefreshCurrentView();
         }
