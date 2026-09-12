@@ -158,25 +158,30 @@ namespace PlateToolsAI
         private void RefreshPartsGrid(List<CutlistPart> parts)
         {
             _loadingGrid = true;
-            dgvParts.Rows.Clear();
-
-            foreach (var part in parts)
+            try
             {
-                var rowIndex = dgvParts.Rows.Add(
-                    part.PieceMark,
-                    part.Quantity,
-                    part.Material,
-                    part.Thickness,
-                    part.Sequence,
-                    part.Lot,
-                    part.Machine,
-                    GetAssignmentStatus(part)
-                );
+                dgvParts.Rows.Clear();
 
-                dgvParts.Rows[rowIndex].Tag = part;
+                foreach (var part in parts)
+                {
+                    var rowIndex = dgvParts.Rows.Add(
+                        part.PieceMark,
+                        part.Quantity,
+                        part.Material,
+                        part.Thickness,
+                        part.Sequence,
+                        part.Lot,
+                        part.Machine,
+                        GetAssignmentStatus(part)
+                    );
+
+                    dgvParts.Rows[rowIndex].Tag = part;
+                }
             }
-
-            _loadingGrid = false;
+            finally
+            {
+                _loadingGrid = false;
+            }
         }
 
         private void lstLots_SelectedIndexChanged(object sender, EventArgs e)
@@ -264,16 +269,28 @@ namespace PlateToolsAI
 
             IEnumerable<CutlistPart> parts = _currentJob.Parts;
 
-            if (lstLots.SelectedItem is string selectedLotText)
+            var selectedLots = lstLots.SelectedItems
+                .Cast<object>()
+                .Select(item => item?.ToString()?.Replace("Lot ", string.Empty))
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .ToList();
+
+            if (selectedLots.Count > 0)
             {
-                var lot = selectedLotText.Replace("Lot ", string.Empty);
-                parts = parts.Where(part => string.Equals(part.Lot, lot, StringComparison.OrdinalIgnoreCase));
+                parts = parts.Where(part =>
+                    selectedLots.Any(lot => string.Equals(part.Lot, lot, StringComparison.OrdinalIgnoreCase)));
             }
 
-            if (lstSequences.SelectedItem is string selectedSequenceText)
+            var selectedSequences = lstSequences.SelectedItems
+                .Cast<object>()
+                .Select(item => item?.ToString()?.Replace("Sequence ", string.Empty))
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .ToList();
+
+            if (selectedSequences.Count > 0)
             {
-                var sequence = selectedSequenceText.Replace("Sequence ", string.Empty);
-                parts = parts.Where(part => string.Equals(part.Sequence, sequence, StringComparison.OrdinalIgnoreCase));
+                parts = parts.Where(part =>
+                    selectedSequences.Any(sequence => string.Equals(part.Sequence, sequence, StringComparison.OrdinalIgnoreCase)));
             }
 
             return parts.ToList();

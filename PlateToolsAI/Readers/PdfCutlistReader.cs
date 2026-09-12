@@ -587,10 +587,16 @@ namespace PlateToolsAI.Readers
                 .ToList();
 
             job.Lots.Clear();
-            job.Lots.AddRange(lots.Count > 0 ? (IEnumerable<string>)lots : new[] { context.Lot });
+            if (lots.Count > 0)
+            {
+                job.Lots.AddRange(lots);
+            }
 
             job.Sequences.Clear();
-            job.Sequences.AddRange(sequences.Count > 0 ? (IEnumerable<string>)sequences : new[] { context.Sequence });
+            if (sequences.Count > 0)
+            {
+                job.Sequences.AddRange(sequences);
+            }
         }
 
         private static bool HasEnoughPartCandidates(IEnumerable<string> lines)
@@ -623,7 +629,8 @@ namespace PlateToolsAI.Readers
                    normalized.StartsWith("PIECE MARK", StringComparison.Ordinal) ||
                    normalized.StartsWith("PAGE ", StringComparison.Ordinal) ||
                    normalized.Contains("CUT LIST") ||
-                   normalized.Contains("TOTAL") ||
+                   normalized.StartsWith("TOTAL", StringComparison.Ordinal) ||
+                   normalized.EndsWith(" TOTAL", StringComparison.Ordinal) ||
                    normalized == "PL" ||
                    normalized.StartsWith("=====", StringComparison.Ordinal);
         }
@@ -657,9 +664,9 @@ namespace PlateToolsAI.Readers
 
             public string Thickness { get; set; } = string.Empty;
 
-            public string Sequence { get; set; } = "1";
+            public string Sequence { get; set; } = string.Empty;
 
-            public string Lot { get; set; } = "1";
+            public string Lot { get; set; } = string.Empty;
         }
     }
 }
